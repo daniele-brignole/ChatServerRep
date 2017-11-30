@@ -1,16 +1,15 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-
-public class ClientSender {
-	private static int port = 4000;
-	
+public class ClientReceiver {
+	static int port = 4000;
 	public static void main(String[] args) throws IOException {
 		String addr = "127.0.0.1";
 		String username;
@@ -22,21 +21,27 @@ public class ClientSender {
 		username = buffer.readLine();
 		try{
 			s.connect(ISaddr);
-			stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di scrittura");
-			stamp("Digita /commands per mostrare i comandi disponibili");
-			OutputStream os = s.getOutputStream();
-			OutputStreamWriter wr = new OutputStreamWriter(os);
-			BufferedWriter outbuffer = new BufferedWriter(wr);
-			while(true) {
+			stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di lettura");
+			while(true){			
+				InputStream is = s.getInputStream();
+				
+				reader = new InputStreamReader(is);				
+				buffer = new BufferedReader(reader);				
 				String line = buffer.readLine();
-				outbuffer.write(line);
-				outbuffer.newLine();
-				outbuffer.flush();
-				/*if(line.equals("quit")) {
-					break;
+				
+				
+				while(line != null) {
+					if(line.equals("quit")) {
+						s.close();
+						System.out.println("CONNECTION CLOSED BY CLIENT");
+						break;
+					} else {
+						System.out.println(line);
+					}
+					line = buffer.readLine();
 				}
-				*/
 			}
+			
 		} 
 		catch(Exception e){
 			
@@ -47,6 +52,7 @@ public class ClientSender {
 	public static void stamp(String s){
 		System.out.println(s);
 	}
+
 	
-	
+
 }
