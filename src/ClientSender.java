@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Vector;
 
 
 public class ClientSender {
@@ -27,15 +28,30 @@ public class ClientSender {
 			OutputStream os = s.getOutputStream();
 			OutputStreamWriter wr = new OutputStreamWriter(os);
 			BufferedWriter outbuffer = new BufferedWriter(wr);
+			
+			outbuffer.write(username);
+			outbuffer.newLine();
+			outbuffer.flush();
+			
+			outbuffer.write("sender");
+			outbuffer.newLine();
+			outbuffer.flush();
 			while(true) {
 				String line = buffer.readLine();
 				outbuffer.write(line);
 				outbuffer.newLine();
 				outbuffer.flush();
-				/*if(line.equals("quit")) {
+				if(line.equals("quit")) {
 					break;
 				}
-				*/
+				/*if(line.equals("/msxList")){
+					Vector<String> list = new Vector<String>();
+					list = PublicServer.getMsxlist();
+					for (int i = 0; i<list.size();i++){
+						stamp(list.get(i));
+					}
+				}*/
+				
 			}
 		} 
 		catch(Exception e){

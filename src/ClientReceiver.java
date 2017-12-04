@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
@@ -22,25 +23,38 @@ public class ClientReceiver {
 		try{
 			s.connect(ISaddr);
 			stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di lettura");
-			while(true){			
-				InputStream is = s.getInputStream();
-				
-				reader = new InputStreamReader(is);				
-				buffer = new BufferedReader(reader);				
+			OutputStream os = s.getOutputStream();
+			OutputStreamWriter wr = new OutputStreamWriter(os);
+			BufferedWriter outbuffer = new BufferedWriter(wr);
+			
+			outbuffer.write(username);
+			outbuffer.newLine();
+			outbuffer.flush();
+			
+			outbuffer.write("receiver");
+			outbuffer.newLine();
+			outbuffer.flush();
+						
+			InputStream is = s.getInputStream();
+			InputStreamReader rd = new  InputStreamReader(is);
+			BufferedReader inbuffer = new BufferedReader(rd);
+			
+			//ObjectInputStream ois = new ObjectInputStream(is);
+			
+			while(true){
+				String response = inbuffer.readLine();
+				System.out.println(response);
 				String line = buffer.readLine();
-				
-				
-				while(line != null) {
-					if(line.equals("quit")) {
-						s.close();
-						System.out.println("CONNECTION CLOSED BY CLIENT");
-						break;
-					} else {
-						System.out.println(line);
-					}
-					line = buffer.readLine();
+				outbuffer.write(line);
+				outbuffer.newLine();
+				outbuffer.flush();
+				if (line.equals("quit")){
+					break;
 				}
+				
+				line = buffer.readLine();
 			}
+			
 			
 		} 
 		catch(Exception e){
