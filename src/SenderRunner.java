@@ -6,13 +6,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.Vector;
 
 public class SenderRunner implements Runnable {
 	private Socket client = null;
+	private Vector<String> v = new Vector<String>();
+	private int last = 0; 
 	String username = "";
 	String type = "";
-	public SenderRunner(Socket client){
+	public SenderRunner(Socket client,Vector<String> v, int last){
 		this.client = client;
+		this.v = v;
+		this.last = last;
+		System.out.println(this.last);
 	}
 			
 	@Override
@@ -50,8 +56,15 @@ public class SenderRunner implements Runnable {
 				}
 				else {
 					System.out.println(line);
-					
-					PublicServer.addMsx(line);;
+					synchronized(this.v){
+						
+						v.add(line);
+						
+						v.notifyAll();
+					}
+					synchronized((Integer)this.last){this.last = (v.size()-1);}
+					//PublicServer.addMsx(line);
+					//PublicServer.getMsxlist().notifyAll();
 					//System.out.println(PublicServer.getMsxlist().size());
 				}
 				line = buffer.readLine();
@@ -59,8 +72,28 @@ public class SenderRunner implements Runnable {
 			
 				break;
 		case("receiver"):
+			
+			int i = this.last;
 			System.out.println(type + " " + username + " si è connesso");
-		line = buffer.readLine();
+			while(true){
+				synchronized(this.v){
+					
+					
+					if (i < v.size()){
+					line = v.get(i);
+					outbuffer.write(line);
+					outbuffer.newLine();
+					outbuffer.flush();
+					i++;
+					}
+					else v.wait();
+					}
+				
+				
+				
+			}
+			//break;
+		/*line = buffer.readLine();
 		while(line!=null){//continuiamo a leggere finch� non si riceve dal client la parola quit
 			System.out.println(line);
 			if (line.equals("quit")){
@@ -74,8 +107,8 @@ public class SenderRunner implements Runnable {
 				outbuffer.flush();
 			}
 			line = buffer.readLine();
-		}
-			break;
+		}*/
+			
 		}
 	}catch (Exception e){
 		e.printStackTrace();

@@ -44,15 +44,13 @@ public class ClientReceiver {
 			while(true){
 				String response = inbuffer.readLine();
 				System.out.println(response);
-				String line = buffer.readLine();
-				outbuffer.write(line);
-				outbuffer.newLine();
-				outbuffer.flush();
-				if (line.equals("quit")){
-					break;
-				}
+				//String line = buffer.readLine();
+				//outbuffer.write(line);
+				//outbuffer.newLine();
+				//outbuffer.flush();
 				
-				line = buffer.readLine();
+				
+				//line = buffer.readLine();
 			}
 			
 			

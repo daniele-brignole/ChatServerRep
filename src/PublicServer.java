@@ -14,12 +14,13 @@ public class PublicServer {
 
 	public static void main(String[] args) {
 		msxlist = new Vector<String>();
+		counter = 0;
 		try {
 			ServerSocket server = new ServerSocket(4000);//creo socketserver in ascolto su porta 4000
 			while(true){
 				Socket s = server.accept(); //il socketserver va in ascolto
 				
-				SenderRunner chatthread = new SenderRunner(s);
+				SenderRunner chatthread = new SenderRunner(s,msxlist,counter);
 				Thread t = new Thread(chatthread);
 				t.start();
 			}	
@@ -31,6 +32,7 @@ public class PublicServer {
 	}
 
 	private static Vector<String> msxlist;
+	private static int counter;
 	
 	public static void addMsx(String msx){
 		synchronized(msxlist){
@@ -38,7 +40,10 @@ public class PublicServer {
 		}
 	}
 	public static Vector<String> getMsxlist() {
-		return msxlist;
+		synchronized(msxlist){
+			return msxlist;
+		}
+		
 	}
 
 	public static void setMsxlist(Vector<String> msxlist) {
