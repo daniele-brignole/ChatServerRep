@@ -13,14 +13,16 @@ import java.io.OutputStream;
 public class PublicServer {
 
 	public static void main(String[] args) {
+		listaUtenti = new Vector<ChatUser>();
 		msxlist = new Vector<String>();
+		cmlist = new Vector<ChatMessage>();
 		counter = 0;
 		try {
 			ServerSocket server = new ServerSocket(4000);//creo socketserver in ascolto su porta 4000
 			while(true){
 				Socket s = server.accept(); //il socketserver va in ascolto
 				
-				SenderRunner chatthread = new SenderRunner(s,msxlist,counter);
+				SenderRunner chatthread = new SenderRunner(s,msxlist,counter,listaUtenti,cmlist);
 				Thread t = new Thread(chatthread);
 				t.start();
 			}	
@@ -33,7 +35,22 @@ public class PublicServer {
 
 	private static Vector<String> msxlist;
 	private static int counter;
-	
+	private static Vector<ChatUser> listaUtenti;
+	private static Vector<ChatMessage> cmlist;
+	public static int addUser(ChatUser cu,String ruolo){
+			synchronized(listaUtenti){
+			for(int i = 0; i < listaUtenti.size();i++){
+				if(listaUtenti.get(i).isSender() && ruolo.equals("sender") && cu.getUsername().equals(listaUtenti.get(i).getUsername())){
+					return -1;
+				}
+				if(listaUtenti.get(i).isReceiver() && ruolo.equals("receiver") && cu.getUsername().equals(listaUtenti.get(i).getUsername())){
+					return -1;
+				}
+			}
+			listaUtenti.add(cu);
+			return 1;
+		}
+	}
 	public static void addMsx(String msx){
 		synchronized(msxlist){
 			PublicServer.msxlist.add(msx);

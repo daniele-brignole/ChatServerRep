@@ -43,7 +43,11 @@ public class ClientReceiver {
 			
 			while(true){
 				String response = inbuffer.readLine();
-				System.out.println(response);
+				if(response.equals("@" + username) || response.equals("@all")){
+					response = inbuffer.readLine();
+					System.out.println(response);
+				}
+				
 				//String line = buffer.readLine();
 				//outbuffer.write(line);
 				//outbuffer.newLine();
