@@ -44,22 +44,10 @@ public class SenderRunner implements Runnable {
 		ChatUser user = new ChatUser(username,type);
 		
 		int response = addUser(user,type);
-		if(response == 1) {
-			synchronized(this.v){
-				
-				v.add("connesso");
-				
-				v.notifyAll();
-			}
-		}
-		else if (response == -1){
-			synchronized(this.v){
-				
-				v.add("errore");
-				
-				v.notifyAll();
-			}
-		}
+		System.out.println(response);
+		outbuffer.write(response+"");
+		outbuffer.newLine();
+		outbuffer.flush();
 		//System.out.println("Numero utenti connessi: "+ userlist.size());
 		
 		switch(type){
@@ -68,7 +56,7 @@ public class SenderRunner implements Runnable {
 			line = buffer.readLine();
 			while(line!=null){//continuiamo a leggere finch� non si riceve dal client la parola quit
 				
-				if (line.equals("quit")){
+				if (line.equals("/quit")){
 					client.close();
 					synchronized(this.userlist){
 						for(int y = 0; y < userlist.size();y++){
@@ -77,8 +65,25 @@ public class SenderRunner implements Runnable {
 							}
 						}
 					}
+					synchronized(this.v){
+						v.add("@"+username);
+						v.add("/quit");
+						v.notifyAll();
+					}
 					System.out.println(username+ ": CONNECTION CLOSED");
 					break;
+				}
+				else if (line.equals("/ul")){
+					String list = "";
+					for (int i = 0; i < userlist.size();i++){
+						list = list + userlist.get(i).getUsername()+ " ";
+					}
+					//ChatMessage cm = new ChatMessage("@"+ username,list,counter);
+					synchronized(this.v){
+						v.add("@"+ username);
+						v.add(list);
+						v.notifyAll();
+					}
 				}
 				
 				else if (line.charAt(0)=='@'){
@@ -147,30 +152,17 @@ public class SenderRunner implements Runnable {
 					outbuffer.newLine();
 					outbuffer.flush();
 					i++;
+					if(line.equals("/quit")){
+						client.close();
+						break;
+					}
 					}
 					else v.wait();
 					}
 				
 				
 				
-			}
-			//break;
-		/*line = buffer.readLine();
-		while(line!=null){//continuiamo a leggere finch� non si riceve dal client la parola quit
-			System.out.println(line);
-			if (line.equals("quit")){
-				client.close();
-				System.out.println(username+ ": CONNECTION CLOSED");
-				break;
-			}
-			else{
-				outbuffer.write(line);
-				outbuffer.newLine();
-				outbuffer.flush();
-			}
-			line = buffer.readLine();
-		}*/
-			
+			}			
 		}
 	}catch (Exception e){
 		e.printStackTrace();
@@ -190,14 +182,17 @@ public class SenderRunner implements Runnable {
 			if (userlist.get(i).isSender() && cu.getUsername().equals(userlist.get(i).getUsername())) {
 				userlist.get(i).setReceiver(true);
 				System.out.println("utente "+ cu.getUsername()+ " attivo");
+				return 0;
 			}
 			if (userlist.get(i).isSender() && cu.getUsername().equals(userlist.get(i).getUsername())) {
 				userlist.get(i).setSender(true);
 				System.out.println("utente "+ cu.getUsername()+ " attivo");
+				return 0;
 			}
 		}
 		userlist.add(cu);
-		return 1;
+		System.out.println("autenticazione concessa");
+		return 0;
 	}
 }
 

@@ -40,11 +40,22 @@ public class ClientReceiver {
 			BufferedReader inbuffer = new BufferedReader(rd);
 			
 			//ObjectInputStream ois = new ObjectInputStream(is);
-			
+			String ok = inbuffer.readLine();
+			if(ok == "0"){
+				System.out.println("Connesso");
+			}
+			else if(ok == "-1"){
+				stamp("errore: utente già connesso");
+				return;
+			}
 			while(true){
 				String response = inbuffer.readLine();
 				if(response.equals("@" + username) || response.equals("@all")){
 					response = inbuffer.readLine();
+					if (response.equals("/quit")){
+						s.close();
+						break;
+					}
 					System.out.println(response);
 				}
 				

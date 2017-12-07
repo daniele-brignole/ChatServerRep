@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -36,21 +37,29 @@ public class ClientSender {
 			outbuffer.write("sender");
 			outbuffer.newLine();
 			outbuffer.flush();
+			
+			InputStream is = s.getInputStream();
+			InputStreamReader rd = new  InputStreamReader(is);
+			BufferedReader inbuffer = new BufferedReader(rd);
+			String ok = inbuffer.readLine();
+			System.out.println(ok);
+			if(ok.equals("0")){
+				System.out.println("Connesso");
+			}
+			else if(ok.equals("-1")){
+				stamp("errore: utente già connesso");
+				return;
+			}
+			//is.close();
+			
 			while(true) {
 				String line = buffer.readLine();
 				outbuffer.write(line);
 				outbuffer.newLine();
 				outbuffer.flush();
-				if(line.equals("quit")) {
+				if(line.equals("/quit")) {
 					break;
 				}
-				/*if(line.equals("/msxList")){
-					Vector<String> list = new Vector<String>();
-					list = PublicServer.getMsxlist();
-					for (int i = 0; i<list.size();i++){
-						stamp(list.get(i));
-					}
-				}*/
 				
 			}
 		} 
