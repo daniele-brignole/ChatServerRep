@@ -14,10 +14,10 @@ public class ClientSender {
 	private static int port = 4000;
 	
 	public static void main(String[] args) throws IOException {
-		String addr = "127.0.0.1";
+		//String addr = "127.0.0.1";
 		String username;
 		Socket s = new Socket();
-		InetSocketAddress ISaddr = new InetSocketAddress(addr, port);
+		InetSocketAddress ISaddr = new InetSocketAddress(args[0], port);
 		stamp("Benvenuto, inserisci il tuo username per effettuare il login");
 		InputStreamReader reader = new InputStreamReader(System.in);
 		BufferedReader buffer = new BufferedReader(reader);
@@ -42,12 +42,12 @@ public class ClientSender {
 			InputStreamReader rd = new  InputStreamReader(is);
 			BufferedReader inbuffer = new BufferedReader(rd);
 			String ok = inbuffer.readLine();
-			System.out.println(ok);
+			//System.out.println(ok);
 			if(ok.equals("0")){
-				System.out.println("Connesso");
+				System.out.println("Connessione riuscita");
 			}
 			else if(ok.equals("-1")){
-				stamp("errore: utente gi√† connesso");
+				stamp("Errore: utente gia† connesso");
 				return;
 			}
 			//is.close();

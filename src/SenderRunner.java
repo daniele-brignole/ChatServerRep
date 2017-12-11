@@ -51,11 +51,12 @@ public class SenderRunner implements Runnable {
 		//System.out.println("Numero utenti connessi: "+ userlist.size());
 		
 		switch(type){
+		//thread per i client sender
 		case ("sender"):
 			System.out.println(type + " " + username + " si è connesso");
 			line = buffer.readLine();
 			while(line!=null){//continuiamo a leggere finch� non si riceve dal client la parola quit
-				
+				//logout
 				if (line.equals("/quit")){
 					client.close();
 					synchronized(this.userlist){
@@ -73,38 +74,53 @@ public class SenderRunner implements Runnable {
 					System.out.println(username+ ": CONNECTION CLOSED");
 					break;
 				}
+				//mostra lista utenti
 				else if (line.equals("/ul")){
 					String list = "";
 					for (int i = 0; i < userlist.size();i++){
 						list = list + userlist.get(i).getUsername()+ " ";
 					}
-					//ChatMessage cm = new ChatMessage("@"+ username,list,counter);
+					
 					synchronized(this.v){
 						v.add("@"+ username);
 						v.add(list);
 						v.notifyAll();
 					}
 				}
-				
+				//invio di messaggio privato
 				else if (line.charAt(0)=='@'){
 					String dest = "@"+line.substring(1, line.length());
 					line = buffer.readLine();
 					synchronized((Integer)this.counter){counter++;System.out.println(counter);}
-					ChatMessage cm = new ChatMessage(dest,line,counter);
+					ChatMessage cm = new ChatMessage(dest,username + ": " + line,counter);
 					synchronized(this.v){
 						v.add(dest);
 						v.add(cm.getMsx());
 						v.notifyAll();
 					}
+					synchronized(this.cmlist){
+						cmlist.add(cm);
+					}
 				}
-				
-				else if(line.equals("/msxList")){
+				//mostra ultimi dieci messaggi
+				else if(line.equals("/ml")){
 					String list = ""; 
 					synchronized(this.cmlist){
 						int u = cmlist.size()-10;
 						if(u < 0) u = 0;
-						for (int i = u; i<cmlist.size();i++){
-							list = list + cmlist.get(i).getMsx()+" ";
+						/*for (int i = u; i<cmlist.size();i++){
+							list = list + cmlist.get(i).getMsx()+"/r/n";
+						}*/
+						while(u < cmlist.size()){
+							String dest = cmlist.get(u).getDestination();
+							System.out.println("dest: "+dest);
+							if(dest.equals("@all")||dest.equals("@"+this.username)){
+								list = list + cmlist.get(u).getMsx();
+								u++;
+							}
+							else{
+								u++;
+							}
 						}
 					}
 					ChatMessage cm = new ChatMessage("@"+ username,list,counter);
@@ -115,12 +131,12 @@ public class SenderRunner implements Runnable {
 					}
 					
 				}
-				
+				//invio messaggio globale
 				else {
 					System.out.println(line);
 					synchronized(this.v){
 						synchronized((Integer)this.counter){counter++;}
-						ChatMessage cm = new ChatMessage(null,line,counter);
+						ChatMessage cm = new ChatMessage("@all",username + ": "+line,counter);
 						v.add("@all");
 						
 						v.add(cm.getMsx());
@@ -140,11 +156,15 @@ public class SenderRunner implements Runnable {
 			}
 			
 				break;
+		//thread per i client receiver
 		case("receiver"):
 			
 			int i = this.counter;
 			System.out.println(type + " " + username + " si è connesso");
 			while(true){
+				//legge dal vettore buffer tutti i messaggi fino in fondo, 
+				//se l'indicatore � in fondo si mette in attesa sul vettore 
+				//fino a quando un nuovo messagio non viene inviato.
 				synchronized(this.v){
 					if (i < v.size()){
 					line = v.get(i);
@@ -152,8 +172,9 @@ public class SenderRunner implements Runnable {
 					outbuffer.newLine();
 					outbuffer.flush();
 					i++;
+					//logout automatico del receiver
 					if(line.equals("/quit")){
-						client.close();
+						//client.close();
 						break;
 					}
 					}

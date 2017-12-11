@@ -12,10 +12,10 @@ import java.net.Socket;
 public class ClientReceiver {
 	static int port = 4000;
 	public static void main(String[] args) throws IOException {
-		String addr = "127.0.0.1";
+		//String addr = "127.0.0.1";
 		String username;
 		Socket s = new Socket();
-		InetSocketAddress ISaddr = new InetSocketAddress(addr, port);
+		InetSocketAddress ISaddr = new InetSocketAddress(args[0], port);
 		stamp("Benvenuto, inserisci il tuo username per effettuare il login");
 		InputStreamReader reader = new InputStreamReader(System.in);
 		BufferedReader buffer = new BufferedReader(reader);
@@ -59,13 +59,6 @@ public class ClientReceiver {
 					System.out.println(response);
 				}
 				
-				//String line = buffer.readLine();
-				//outbuffer.write(line);
-				//outbuffer.newLine();
-				//outbuffer.flush();
-				
-				
-				//line = buffer.readLine();
 			}
 			
 			
