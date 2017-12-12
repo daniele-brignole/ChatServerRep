@@ -30,6 +30,7 @@ public class SenderRunner implements Runnable {
 		// TODO Auto-generated method stub
 		
 		try{
+			//crea canali input/output
 		InputStream is = client.getInputStream();
 		InputStreamReader reader = new InputStreamReader(is);
 		BufferedReader buffer= new BufferedReader(reader);
@@ -37,24 +38,31 @@ public class SenderRunner implements Runnable {
 		OutputStream os = client.getOutputStream();
 		OutputStreamWriter wr = new OutputStreamWriter(os);
 		BufferedWriter outbuffer = new BufferedWriter(wr);
-		
+		//inizializza username e tipo di thread di client (sender o receiver)
 		String line = buffer.readLine();
 		username = line;
 		type = buffer.readLine();
+		//crea un nuovo chatUser, controlla la lista degli utenti  
+		//e invia la risposta al client (login corretto/errore)
 		ChatUser user = new ChatUser(username,type);
-		
 		int response = addUser(user,type);
-		System.out.println(response);
+		
 		outbuffer.write(response+"");
 		outbuffer.newLine();
 		outbuffer.flush();
-		//System.out.println("Numero utenti connessi: "+ userlist.size());
 		
+		//controlla se il thread da creare è per i sender o per i receiver
 		switch(type){
 		//thread per i client sender
 		case ("sender"):
 			System.out.println(type + " " + username + " si Ã¨ connesso");
-			line = buffer.readLine();
+			try{
+				line = buffer.readLine();
+			}
+			catch(StringIndexOutOfBoundsException e){
+				line = buffer.readLine();
+				e.printStackTrace();
+			}
 			while(line!=null){//continuiamo a leggere finchï¿½ non si riceve dal client la parola quit
 				//logout
 				if (line.equals("/quit")){
@@ -90,7 +98,7 @@ public class SenderRunner implements Runnable {
 				//invio di messaggio privato
 				else if (line.charAt(0)=='@'){
 					String dest = "@"+line.substring(1, line.length());
-					line = buffer.readLine();
+					line = "[p] " + buffer.readLine();
 					synchronized((Integer)this.counter){counter++;System.out.println(counter);}
 					ChatMessage cm = new ChatMessage(dest,username + ": " + line,counter);
 					synchronized(this.v){
@@ -108,9 +116,6 @@ public class SenderRunner implements Runnable {
 					synchronized(this.cmlist){
 						int u = cmlist.size()-10;
 						if(u < 0) u = 0;
-						/*for (int i = u; i<cmlist.size();i++){
-							list = list + cmlist.get(i).getMsx()+"/r/n";
-						}*/
 						while(u < cmlist.size()){
 							String dest = cmlist.get(u).getDestination();
 							System.out.println("dest: "+dest);
@@ -166,6 +171,7 @@ public class SenderRunner implements Runnable {
 				//se l'indicatore è in fondo si mette in attesa sul vettore 
 				//fino a quando un nuovo messagio non viene inviato.
 				synchronized(this.v){
+					System.out.println(i);
 					if (i < v.size()){
 					line = v.get(i);
 					outbuffer.write(line);
@@ -173,9 +179,9 @@ public class SenderRunner implements Runnable {
 					outbuffer.flush();
 					i++;
 					//logout automatico del receiver
-					if(line.equals("/quit")){
+					if(line.equals("/quit") && v.get(i-1).equals("@"+this.username)){
 						//client.close();
-						break;
+						return;
 					}
 					}
 					else v.wait();

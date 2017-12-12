@@ -42,7 +42,7 @@ public class ClientSender {
 			InputStreamReader rd = new  InputStreamReader(is);
 			BufferedReader inbuffer = new BufferedReader(rd);
 			String ok = inbuffer.readLine();
-			//System.out.println(ok);
+			
 			if(ok.equals("0")){
 				System.out.println("Connessione riuscita");
 			}
@@ -50,18 +50,22 @@ public class ClientSender {
 				stamp("Errore: utente gia  connesso");
 				return;
 			}
-			//is.close();
 			
+			String line = "";
 			while(true) {
-				String line = buffer.readLine();
-				outbuffer.write(line);
-				outbuffer.newLine();
-				outbuffer.flush();
-				if(line.equals("/quit")) {
-					break;
+				if((line = buffer.readLine()).equals("")){
+					System.out.println("Errore di digitazione, si prega di inserire un testo valido");
 				}
-				
-			}
+				else{
+					outbuffer.write(line);
+					outbuffer.newLine();
+					outbuffer.flush();
+					if(line.equals("/quit")) {
+						break;
+					}
+				}
+			}	
+			
 		} 
 		catch(Exception e){
 			
