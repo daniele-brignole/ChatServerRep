@@ -22,7 +22,7 @@ public class ClientReceiver {
 		username = buffer.readLine();
 		try{
 			s.connect(ISaddr);
-			stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di lettura");
+			
 			OutputStream os = s.getOutputStream();
 			OutputStreamWriter wr = new OutputStreamWriter(os);
 			BufferedWriter outbuffer = new BufferedWriter(wr);
@@ -39,10 +39,14 @@ public class ClientReceiver {
 			InputStreamReader rd = new  InputStreamReader(is);
 			BufferedReader inbuffer = new BufferedReader(rd);
 			
-			//ObjectInputStream ois = new ObjectInputStream(is);
+			
 			String ok = inbuffer.readLine();
 			if(ok == "0"){
 				System.out.println("Connesso");
+				stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di lettura");
+				stamp("In questa finestra riceverai i messaggi preceduti dal nome del mittente");
+				stamp("e dall'ora di invio. Il messaggio e preceduto da [p] il messaggio e privato");
+				stamp("e visualizzabile solo da te");
 			}
 			else if(ok == "-1"){
 				stamp("errore: utente già connesso");
@@ -53,7 +57,7 @@ public class ClientReceiver {
 				if(response.equals("@" + username) || response.equals("@all")){
 					response = inbuffer.readLine();
 					if (response.equals("/quit")){
-						s.close();
+						//s.close();
 						break;
 					}
 					System.out.println(response);

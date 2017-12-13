@@ -19,10 +19,10 @@ public class SenderRunner implements Runnable {
 	public SenderRunner(Socket client,Vector<String> v, int counter,Vector<ChatUser> userlist,Vector<ChatMessage> cmlist){
 		this.client = client;
 		this.v = v;
-		this.counter = counter;
+		this.counter = v.size();
 		this.userlist = userlist;
 		this.cmlist = cmlist;
-		System.out.println(this.counter);
+		System.out.println("counter: "+this.counter);
 	}
 			
 	@Override
@@ -51,7 +51,7 @@ public class SenderRunner implements Runnable {
 		outbuffer.newLine();
 		outbuffer.flush();
 		
-		//controlla se il thread da creare è per i sender o per i receiver
+		//controlla se il thread da creare ï¿½ per i sender o per i receiver
 		switch(type){
 		//thread per i client sender
 		case ("sender"):
@@ -164,11 +164,12 @@ public class SenderRunner implements Runnable {
 		//thread per i client receiver
 		case("receiver"):
 			
-			int i = this.counter;
+			int i = this.counter -2;
+			if(i <0) i = 0;
 			System.out.println(type + " " + username + " si Ã¨ connesso");
 			while(true){
 				//legge dal vettore buffer tutti i messaggi fino in fondo, 
-				//se l'indicatore è in fondo si mette in attesa sul vettore 
+				//se l'indicatore ï¿½ in fondo si mette in attesa sul vettore 
 				//fino a quando un nuovo messagio non viene inviato.
 				synchronized(this.v){
 					System.out.println(i);
@@ -180,7 +181,6 @@ public class SenderRunner implements Runnable {
 					i++;
 					//logout automatico del receiver
 					if(line.equals("/quit") && v.get(i-1).equals("@"+this.username)){
-						//client.close();
 						return;
 					}
 					}
@@ -211,7 +211,7 @@ public class SenderRunner implements Runnable {
 				System.out.println("utente "+ cu.getUsername()+ " attivo");
 				return 0;
 			}
-			if (userlist.get(i).isSender() && cu.getUsername().equals(userlist.get(i).getUsername())) {
+			if (userlist.get(i).isReceiver() && cu.getUsername().equals(userlist.get(i).getUsername())) {
 				userlist.get(i).setSender(true);
 				System.out.println("utente "+ cu.getUsername()+ " attivo");
 				return 0;

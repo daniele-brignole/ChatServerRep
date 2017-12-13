@@ -16,7 +16,7 @@ public class PublicServer {
 		listaUtenti = new Vector<ChatUser>();
 		msxlist = new Vector<String>();
 		cmlist = new Vector<ChatMessage>();
-		counter = 0;
+		int counter = 0;
 		try {
 			ServerSocket server = new ServerSocket(4000);//creo socketserver in ascolto su porta 4000
 			while(true){
@@ -34,7 +34,7 @@ public class PublicServer {
 	}
 
 	private static Vector<String> msxlist;
-	private static int counter;
+	
 	private static Vector<ChatUser> listaUtenti;
 	private static Vector<ChatMessage> cmlist;
 	public static int addUser(ChatUser cu,String ruolo){

@@ -24,8 +24,7 @@ public class ClientSender {
 		username = buffer.readLine();
 		try{
 			s.connect(ISaddr);
-			stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di scrittura");
-			stamp("Digita /commands per mostrare i comandi disponibili");
+			
 			OutputStream os = s.getOutputStream();
 			OutputStreamWriter wr = new OutputStreamWriter(os);
 			BufferedWriter outbuffer = new BufferedWriter(wr);
@@ -44,10 +43,13 @@ public class ClientSender {
 			String ok = inbuffer.readLine();
 			
 			if(ok.equals("0")){
-				System.out.println("Connessione riuscita");
+				stamp("Connessione riuscita");
+				stamp("Benvenuto " + username + ", hai effettuato l'accesso al servizio di scrittura");
+				stamp("Scrivi e premi invio per inviare messaggi agli altri utenti connessi");
+				stamp("Digita /commands per mostrare i comandi disponibili");
 			}
 			else if(ok.equals("-1")){
-				stamp("Errore: utente gia  connesso");
+				stamp("Errore: utente gia connesso");
 				return;
 			}
 			
@@ -57,12 +59,21 @@ public class ClientSender {
 					System.out.println("Errore di digitazione, si prega di inserire un testo valido");
 				}
 				else{
-					outbuffer.write(line);
-					outbuffer.newLine();
-					outbuffer.flush();
-					if(line.equals("/quit")) {
-						break;
+					if(line.equals("/command")){
+						stamp("/ml:  mostra lista ultimi messaggi disponibili");
+						stamp("/ul:  mostra lista utenti connessi");
+						stamp("/quit:  effettua il logout");
+						stamp("@nomeutente:  invia un messaggio privato all'utente scelto");
 					}
+					else{
+						outbuffer.write(line);
+						outbuffer.newLine();
+						outbuffer.flush();
+						if(line.equals("/quit")) {
+							break;
+						}
+					}
+
 				}
 			}	
 			
